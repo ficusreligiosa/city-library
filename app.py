@@ -781,8 +781,14 @@ def admin_dashboard():
     cursor.execute('SELECT * FROM authors ORDER BY name')
     all_authors = cursor.fetchall()
     
-    # All Members
-    cursor.execute('SELECT * FROM users WHERE user_type = "member" ORDER BY created_at DESC')
+    # All Members with active loans count
+    cursor.execute('''
+        SELECT u.*, 
+               (SELECT COUNT(*) FROM loans l WHERE l.user_id = u.id AND l.returned_at IS NULL) as active_loans_count
+        FROM users u 
+        WHERE u.user_type = "member" 
+        ORDER BY u.created_at DESC
+    ''')
     members = cursor.fetchall()
     
     # Announcements
@@ -920,6 +926,76 @@ def admin_delete_book(book_id):
     flash('Book deleted from catalog.', 'info')
     return redirect(url_for('admin_dashboard'))
 
+# Admin Member Management
+@app.route('/admin/members/add', methods=['POST'])
+def admin_add_member():
+    if not is_admin():
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+        
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip().lower()
+    phone = request.form.get('phone', '').strip()
+    password = request.form.get('password', '').strip()
+    address = request.form.get('address', '').strip()
+    user_type = request.form.get('user_type', 'member').strip()
+    issue_after = request.form.get('issue_after', '0')
+    
+    if not name or not email:
+        flash('Member name and email address are required.', 'error')
+        return redirect(url_for('admin_dashboard'))
+        
+    if not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+        flash('Please enter a valid email address.', 'error')
+        return redirect(url_for('admin_dashboard'))
+        
+    if not password:
+        password = 'password123'  # Default password if left blank
+        
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id FROM users WHERE email = %s', (email,))
+    if cursor.fetchone():
+        flash(f'A member with email "{email}" already exists.', 'error')
+        cursor.close()
+        return redirect(url_for('admin_dashboard'))
+        
+    hashed_password = generate_password_hash(password)
+    cursor.execute('''
+        INSERT INTO users (name, email, phone, password, address, user_type, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    ''', (name, email, phone, hashed_password, address, user_type, datetime.now()))
+    
+    mysql.connection.commit()
+    cursor.close()
+    
+    flash(f'Member "{name}" ({email}) registered successfully! You can now issue books to this member.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/members/delete/<int:user_id>', methods=['POST'])
+def admin_delete_member(user_id):
+    if not is_admin():
+        flash('Access denied.', 'error')
+        return redirect(url_for('home'))
+        
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id FROM loans WHERE user_id = %s AND returned_at IS NULL', (user_id,))
+    if cursor.fetchone():
+        flash('Cannot delete member while they have active, unreturned book loans.', 'error')
+        cursor.close()
+        return redirect(url_for('admin_dashboard'))
+        
+    cursor.execute('DELETE FROM holds WHERE user_id = %s', (user_id,))
+    cursor.execute('DELETE FROM fines WHERE user_id = %s', (user_id,))
+    cursor.execute('DELETE FROM wishlist WHERE user_id = %s', (user_id,))
+    cursor.execute('DELETE FROM loans WHERE user_id = %s', (user_id,))
+    cursor.execute('DELETE FROM users WHERE id = %s AND user_type = "member"', (user_id,))
+    
+    mysql.connection.commit()
+    cursor.close()
+    
+    flash('Member removed from library registry.', 'info')
+    return redirect(url_for('admin_dashboard'))
+
 # Admin Loan Operations
 @app.route('/admin/loans/issue', methods=['POST'])
 def admin_issue_loan():
@@ -932,10 +1008,10 @@ def admin_issue_loan():
     duration_days = request.form.get('duration_days', 14, type=int)
     
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT id FROM users WHERE email = %s', (user_email,))
+    cursor.execute('SELECT id, name, email FROM users WHERE email = %s', (user_email,))
     user = cursor.fetchone()
     if not user:
-        flash(f'No user found with email "{user_email}".', 'error')
+        flash(f'No member found with email "{user_email}". Please register the member first.', 'error')
         cursor.close()
         return redirect(url_for('admin_dashboard'))
         
@@ -963,7 +1039,7 @@ def admin_issue_loan():
     mysql.connection.commit()
     cursor.close()
     
-    flash(f'Successfully issued "{book["title"]}" to {user_email}.', 'success')
+    flash(f'Successfully issued "{book["title"]}" to {user["name"]} ({user["email"]})! Due date is {due_date.strftime("%B %d, %Y")}.', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/loans/return/<int:loan_id>', methods=['POST', 'GET'])
