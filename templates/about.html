@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - City Library{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="py-5 text-center" style="background: linear-gradient(135deg, #3d000f 0%, #650018 60%, #870b28 100%); color: #ffffff; border-bottom: 3px solid var(--border-accent);">
+    <div class="container py-4">
+        <span class="badge-hero mb-3">
+            <i class="fas fa-landmark text-warning"></i> Founded in 1924 &bull; 100+ Years of Learning
+        </span>
+        <h1 class="fw-bold display-5 mb-3">Knowledge for Everyone, Everywhere</h1>
+        <p class="lead mx-auto" style="max-width: 680px; color: var(--color-parchment);">
+            City Library is dedicated to intellectual freedom, digital equity, and fostering a lifelong passion for reading, exploration, and community engagement.
+        </p>
+    </div>
+</section>
+
+<!-- Content -->
+<div class="container py-5">
+    <!-- Story & Mission -->
+    <div class="row g-5 align-items-center mb-5">
+        <div class="col-lg-6">
+            <span class="text-primary fw-bold text-uppercase small">Our Mission</span>
+            <h2 class="fw-bold mb-3">Empowering Our Community with Equitable Access to Knowledge</h2>
+            <p class="text-secondary leading-relaxed">
+                For over a century, City Library has served as the intellectual sanctuary of our metropolitan area. From physical archival manuscripts to modern online lending, our mission remains steadfast: connecting every citizen with information, ideas, and each other.
+            </p>
+            <p class="text-secondary leading-relaxed">
+                We believe that libraries are not merely warehouses for books, but dynamic spaces of discovery, collaboration, innovation, and personal transformation.
+            </p>
+            <div class="row g-3 mt-2">
+                <div class="col-sm-6">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">{{ total_books }}+</h5>
+                            <small class="text-muted">Curated Volumes</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">{{ total_members }}+</h5>
+                            <small class="text-muted">Registered Patrons</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card-modern p-3 shadow-lg rounded-4 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80" 
+                     alt="Library Interior" class="img-fluid rounded-3" style="width: 100%; height: 360px; object-fit: cover;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Facilities -->
+    <div class="text-center mb-5 mt-5">
+        <span class="text-primary fw-bold text-uppercase small">Spaces & Facilities</span>
+        <h2 class="fw-bold">Designed for Deep Focus & Collaboration</h2>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card-modern p-4 h-100">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary mb-3">
+                    <i class="fas fa-volume-mute"></i>
+                </div>
+                <h5 class="fw-bold">Silent Study Sanctuaries</h5>
+                <p class="text-muted mb-0">Individual study cubicles equipped with high-speed power outlets, ergonomic seating, and absolute noise isolation for deep immersion.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-modern p-4 h-100">
+                <div class="stat-icon bg-info bg-opacity-10 text-info mb-3">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <h5 class="fw-bold">Digital Media Lab</h5>
+                <p class="text-muted mb-0">High-performance workstations with audio recording booths, 3D printers, graphic design software, and digital scanning stations.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-modern p-4 h-100">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning mb-3">
+                    <i class="fas fa-coffee"></i>
+                </div>
+                <h5 class="fw-bold">Community Cafe & Lounge</h5>
+                <p class="text-muted mb-0">A casual collaborative space to enjoy artisanal coffee, debate ideas, participate in book clubs, and browse the latest literary journals.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="card-modern p-5 text-center" style="background: var(--bg-subtle);">
+        <h3 class="fw-bold mb-2">Ready to Start Reading?</h3>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">Sign up today for your library card or stop by our information desk for a guided tour.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Get Your Free Card</a>
+            <a href="{{ url_for('catalog') }}" class="btn btn-light-custom">Search Books</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

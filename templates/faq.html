@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Frequently Asked Questions - City Library{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <span class="text-primary fw-bold text-uppercase small">Help Center & Support</span>
+        <h1 class="fw-bold mb-2">Frequently Asked Questions</h1>
+        <p class="text-muted mx-auto" style="max-width: 600px;">
+            Find quick answers to common questions about book loans, reservations, library cards, late fees, and facilities.
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- FAQ Accordion -->
+            <div class="accordion accordion-flush" id="faqAccordion">
+                {% for faq in faqs %}
+                <div class="card-modern mb-3 overflow-hidden">
+                    <div class="accordion-item border-0 bg-transparent">
+                        <h2 class="accordion-header" id="heading{{ loop.index }}">
+                            <button class="accordion-button {% if not loop.first %}collapsed{% endif %} bg-transparent fw-bold text-reset shadow-none py-3 px-4" 
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" 
+                                    aria-expanded="{{ 'true' if loop.first else 'false' }}" aria-controls="collapse{{ loop.index }}">
+                                <span class="badge bg-primary bg-opacity-10 text-primary me-3 small">{{ faq.category }}</span>
+                                {{ faq.question }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                             aria-labelledby="heading{{ loop.index }}" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-secondary px-4 pb-4 pt-1" style="line-height: 1.7;">
+                                {{ faq.answer }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Still need help card -->
+            <div class="card-modern p-4 text-center mt-5" style="background-color: var(--bg-subtle);">
+                <i class="fas fa-headset fa-2x text-primary mb-3"></i>
+                <h4 class="fw-bold mb-1">Didn't find what you're looking for?</h4>
+                <p class="text-muted small mb-3">Our friendly librarians are here to assist you with research, accounts, and special requests.</p>
+                <div>
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                        <i class="fas fa-envelope me-1"></i> Send Us a Message
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

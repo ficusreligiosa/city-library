@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}City Library - Gateway to Knowledge & Learning{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-modern">
+    <div class="container position-relative">
+        <div class="row align-items-center justify-content-center text-center">
+            <div class="col-lg-9">
+                <span class="badge-hero mb-3">
+                    <i class="fas fa-sparkles text-warning"></i> Modern Digital & Physical Library System
+                </span>
+                <h1 class="mb-4">
+                    Expand Your Mind Through The Infinite Power of Books
+                </h1>
+                <p class="lead mb-5 mx-auto" style="max-width: 700px;">
+                    Explore thousands of curated titles across fiction, science, history, philosophy, and technology. Reserve books online, track loans, and attend community events.
+                </p>
+                
+                <!-- Modern Floating Search Bar -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <form action="{{ url_for('catalog') }}" method="GET" class="hero-search-box">
+                            <i class="fas fa-search text-muted ms-2 me-2"></i>
+                            <input type="text" name="search" placeholder="Search by title, author name, or ISBN..." autocomplete="off">
+                            <button type="submit" class="btn-search">
+                                <span>Search</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quick Genre Tags -->
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
+                    <span class="text-white-50 small align-self-center me-1">Popular:</span>
+                    <a href="{{ url_for('catalog', genre='Classic Literature') }}" class="badge rounded-pill bg-white bg-opacity-10 text-white text-decoration-none px-3 py-2">Classic Literature</a>
+                    <a href="{{ url_for('catalog', genre='Science Fiction') }}" class="badge rounded-pill bg-white bg-opacity-10 text-white text-decoration-none px-3 py-2">Science Fiction</a>
+                    <a href="{{ url_for('catalog', genre='Technology') }}" class="badge rounded-pill bg-white bg-opacity-10 text-white text-decoration-none px-3 py-2">Technology</a>
+                    <a href="{{ url_for('catalog', genre='Mystery') }}" class="badge rounded-pill bg-white bg-opacity-10 text-white text-decoration-none px-3 py-2">Mystery</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Floating Stats Ribbon -->
+<div class="container hero-stats-ribbon">
+    <div class="row g-3">
+        <div class="col-md-4 col-sm-6">
+            <div class="stat-card-glass">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0">{{ total_books }}+</h3>
+                    <p class="text-muted small mb-0">Cataloged Books</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="stat-card-glass">
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0">{{ total_members }}+</h3>
+                    <p class="text-muted small mb-0">Active Members</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <div class="stat-card-glass">
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="fas fa-feather-alt"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0">{{ total_authors }}+</h3>
+                    <p class="text-muted small mb-0">Featured Authors</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Books Showcase -->
+<section class="py-5 mt-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+            <div>
+                <span class="text-primary fw-bold text-uppercase small letter-spacing-1">Handpicked Selection</span>
+                <h2 class="fw-bold mb-0">Featured Books</h2>
+            </div>
+            <a href="{{ url_for('catalog') }}" class="btn btn-outline-primary btn-sm mt-2 mt-sm-0">
+                Browse Complete Catalog <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            {% for book in featured_books %}
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="book-card-modern">
+                    <div class="book-cover-container">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image }}" alt="{{ book.title }}" class="book-cover-img" loading="lazy">
+                        {% else %}
+                            <div class="book-cover-fallback">
+                                <div>
+                                    <i class="fas fa-book-reader fs-3 opacity-50 mb-2"></i>
+                                    <h6 class="fw-bold">{{ book.title }}</h6>
+                                </div>
+                                <small class="opacity-75">{{ book.author_name }}</small>
+                            </div>
+                        {% endif %}
+                        <div class="book-cover-badge">
+                            {% if book.available_copies > 0 %}
+                                <span class="badge-status-available">Available</span>
+                            {% else %}
+                                <span class="badge-status-unavailable">Unavailable</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="book-info-body">
+                        <span class="book-genre-pill">{{ book.genre }}</span>
+                        <h6 class="book-card-title" title="{{ book.title }}">{{ book.title }}</h6>
+                        <p class="book-card-author">by {{ book.author_name }}</p>
+                        
+                        <div class="book-card-footer">
+                            <span class="small text-muted">
+                                <i class="fas fa-layer-group text-primary me-1"></i> {{ book.available_copies }}/{{ book.total_copies }} left
+                            </span>
+                            <a href="{{ url_for('book_details', book_id=book.id) }}" class="btn btn-sm btn-primary py-1 px-2" title="View details">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Library Services & Features -->
+<section class="py-5" style="background-color: var(--bg-subtle);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="text-primary fw-bold text-uppercase small">Why Choose City Library</span>
+            <h2 class="fw-bold">Modern Facilities & Seamless Services</h2>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-modern p-4 h-100">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary mb-3">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h5 class="fw-bold">Online Reservations & Holds</h5>
+                    <p class="text-muted mb-0">
+                        Never miss a title. Place holds with a single click, monitor queues in real-time, and get notified immediately when your books are ready.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-modern p-4 h-100">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success mb-3">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h5 class="fw-bold">Digital Membership Pass</h5>
+                    <p class="text-muted mb-0">
+                        Carry your library card right in your phone. Quick barcode scanning at checkout kiosks and seamless reading history tracking.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card-modern p-4 h-100">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info mb-3">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h5 class="fw-bold">Workshops & Reading Groups</h5>
+                    <p class="text-muted mb-0">
+                        Engage in literary discussions, creative writing circles, and technology masterclasses hosted weekly by industry experts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Announcements & Upcoming Events -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Announcements -->
+            <div class="col-lg-6">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3 class="fw-bold mb-0">
+                        <i class="fas fa-bullhorn text-primary me-2"></i> Announcements
+                    </h3>
+                </div>
+                
+                {% if announcements %}
+                    {% for item in announcements %}
+                    <div class="card-modern p-3 mb-3 border-start border-4 border-primary">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 fs-6">{{ item.title }}</h5>
+                            <span class="badge bg-light text-muted small border">
+                                <i class="fas fa-clock me-1"></i> {{ item.created_at|format_date('%b %d, %Y') }}
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-0">{{ item.content }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card-modern p-4 text-center text-muted">
+                        <p class="mb-0">No active announcements at this moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Events -->
+            <div class="col-lg-6">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3 class="fw-bold mb-0">
+                        <i class="fas fa-calendar-alt text-info me-2"></i> Upcoming Events
+                    </h3>
+                </div>
+                
+                {% if events %}
+                    {% for event in events %}
+                    <div class="card-modern p-3 mb-3 border-start border-4 border-info">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 fs-6">{{ event.title }}</h5>
+                            <span class="badge bg-info bg-opacity-10 text-info fw-semibold small">
+                                <i class="fas fa-calendar-check me-1"></i> {{ event.event_date|format_date('%b %d, %Y - %I:%M %p') }}
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-2">{{ event.description }}</p>
+                        {% if event.location %}
+                        <div class="text-secondary small">
+                            <i class="fas fa-map-pin text-danger me-1"></i> {{ event.location }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card-modern p-4 text-center text-muted">
+                        <p class="mb-0">No upcoming events scheduled at this moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+{% if not user_logged_in %}
+<section class="py-5 text-white" style="background: var(--primary-gradient);">
+    <div class="container text-center py-4">
+        <h2 class="fw-bold mb-3">Begin Your Reading Adventure Today</h2>
+        <p class="lead mb-4 mx-auto" style="max-width: 600px;">
+            Join over thousands of curious readers. Free membership, instant online reservations, and access to all library spaces.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('register') }}" class="btn btn-accent btn-lg px-4">
+                <i class="fas fa-user-plus me-1"></i> Register Free Account
+            </a>
+            <a href="{{ url_for('catalog') }}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-compass me-1"></i> Browse Catalog
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

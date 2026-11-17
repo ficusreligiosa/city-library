@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Create Member Account - City Library{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card-modern p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <span class="brand-icon-badge mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.5rem;">
+                        <i class="fas fa-id-card"></i>
+                    </span>
+                    <h2 class="fw-bold">Join City Library</h2>
+                    <p class="text-muted small">Register your free library card and start borrowing books instantly</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label small fw-bold text-muted">Full Name *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-muted"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Eleanor Vance" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="email" class="form-label small fw-bold text-muted">Email Address *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-muted"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="eleanor@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label small fw-bold text-muted">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-muted"><i class="fas fa-phone"></i></span>
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="555-0199">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="password" class="form-label small fw-bold text-muted">Create Password *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-muted"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="At least 6 characters" minlength="6" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="address" class="form-label small fw-bold text-muted">Mailing / Residential Address *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-muted"><i class="fas fa-map-marker-alt"></i></span>
+                                <textarea class="form-control" id="address" name="address" rows="2" placeholder="104 Hill House Road, Springfield" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check my-4">
+                        <input class="form-check-input" type="checkbox" id="termsCheck" required checked>
+                        <label class="form-check-label small text-muted" for="termsCheck">
+                            I agree to adhere to the City Library borrowing rules and membership terms.
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle me-1"></i> Register Free Library Card
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-3 pt-3 border-top">
+                    <p class="small text-muted mb-0">
+                        Already have an account? 
+                        <a href="{{ url_for('login') }}" class="fw-bold">Sign In here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}City Library - Modern Library System{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom Design System CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <span class="brand-icon-badge">
+                    <i class="fas fa-book-open"></i>
+                </span>
+                <span>City<strong>Library</strong></span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <i class="fas fa-bars fs-4 text-primary"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'catalog' %}active{% endif %}" href="{{ url_for('catalog') }}">
+                            <i class="fas fa-compass me-1"></i> Catalog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle me-1"></i> About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'faq' %}active{% endif %}" href="{{ url_for('faq') }}">
+                            <i class="fas fa-question-circle me-1"></i> FAQ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}" href="{{ url_for('contact') }}">
+                            <i class="fas fa-envelope me-1"></i> Contact
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Dark/Light Theme Toggle -->
+                    <button class="theme-toggle-btn me-2" id="themeToggleBtn" title="Toggle Light/Dark Theme" type="button">
+                        <i class="fas fa-moon" id="themeToggleIcon"></i>
+                    </button>
+                    
+                    {% if user_logged_in %}
+                        {% if is_admin_user %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-shield-alt"></i> Admin Panel
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('user_dashboard') }}" class="btn btn-sm btn-outline-primary position-relative">
+                                <i class="fas fa-user-circle"></i> Dashboard
+                                {% if wishlist_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" title="{{ wishlist_count }} saved books">
+                                        {{ wishlist_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('logout') }}" class="btn btn-sm btn-light-custom">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-light-custom">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-user-plus"></i> Join Library
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Flash Notification Alerts -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else (category if category != 'message' else 'info') }} alert-dismissible fade show card-modern shadow-sm border-0 d-flex align-items-center gap-3 py-3" role="alert">
+                        <div>
+                            {% if category == 'error' %}
+                                <i class="fas fa-exclamation-circle fs-4 text-danger"></i>
+                            {% elif category == 'success' %}
+                                <i class="fas fa-check-circle fs-4 text-success"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle fs-4 text-warning"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle fs-4 text-primary"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 fw-500">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Block -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="footer-modern">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="brand-icon-badge">
+                            <i class="fas fa-book-open"></i>
+                        </span>
+                        <h4 class="mb-0 fw-bold">City Library</h4>
+                    </div>
+                    <p class="text-muted pe-lg-4">
+                        Your community hub for discovery, knowledge, innovation, and lifelong learning. Access over thousands of digital and physical literary resources.
+                    </p>
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="btn btn-sm btn-light-custom rounded-circle p-2" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="btn btn-sm btn-light-custom rounded-circle p-2" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" class="btn btn-sm btn-light-custom rounded-circle p-2" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h5>Explore</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('catalog') }}">Book Catalog</a></li>
+                        <li class="mb-2"><a href="{{ url_for('catalog', availability='available') }}">Available Now</a></li>
+                        <li class="mb-2"><a href="{{ url_for('about') }}">About Library</a></li>
+                        <li class="mb-2"><a href="{{ url_for('faq') }}">Member FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h5>Account</h5>
+                    <ul class="list-unstyled">
+                        {% if user_logged_in %}
+                            <li class="mb-2"><a href="{{ url_for('user_dashboard') }}">My Dashboard</a></li>
+                            <li class="mb-2"><a href="{{ url_for('logout') }}">Sign Out</a></li>
+                        {% else %}
+                            <li class="mb-2"><a href="{{ url_for('login') }}">Member Login</a></li>
+                            <li class="mb-2"><a href="{{ url_for('register') }}">Create Account</a></li>
+                        {% endif %}
+                        <li class="mb-2"><a href="{{ url_for('contact') }}">Contact Desk</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <h5>Hours & Location</h5>
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> 123 Main Library Boulevard, Metropolitan City</li>
+                        <li class="mb-2"><i class="fas fa-clock text-primary me-2"></i> Mon - Fri: 8:00 AM – 9:00 PM</li>
+                        <li class="mb-2"><i class="fas fa-clock text-primary me-2"></i> Sat - Sun: 10:00 AM – 6:00 PM</li>
+                        <li class="mb-2"><i class="fas fa-phone text-primary me-2"></i> +1 (555) 123-4567</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr style="border-color: var(--border-color);">
+            
+            <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 small text-muted">
+                <div>
+                    &copy; {{ current_year }} City Library Management System. All rights reserved.
+                </div>
+                <div>
+                    Crafted with precision & modern web standards.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Interactive JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

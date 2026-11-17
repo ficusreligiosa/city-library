@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Book Catalog - City Library{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-7">
+            <h1 class="fw-bold mb-1">Library Catalog</h1>
+            <p class="text-muted mb-0">Browse through our complete collection of literary works and modern resources</p>
+        </div>
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-2 rounded-pill">
+                <i class="fas fa-book me-1"></i> {{ total }} Titles Found
+            </span>
+        </div>
+    </div>
+    
+    <!-- Filter Card -->
+    <div class="card-modern p-4 mb-4">
+        <form method="GET" action="{{ url_for('catalog') }}" id="catalogFilterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-3 col-md-6">
+                    <label for="search" class="form-label small fw-bold text-muted">Keyword Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="search" name="search" 
+                               value="{{ search }}" placeholder="Title, ISBN, author...">
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <label for="genre" class="form-label small fw-bold text-muted">Genre / Category</label>
+                    <select class="form-select" id="genre" name="genre">
+                        <option value="">All Genres</option>
+                        {% for genre_item in genres %}
+                        <option value="{{ genre_item.genre }}" {{ 'selected' if genre == genre_item.genre else '' }}>
+                            {{ genre_item.genre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-lg-2 col-md-4">
+                    <label for="availability" class="form-label small fw-bold text-muted">Availability</label>
+                    <select class="form-select" id="availability" name="availability">
+                        <option value="">All Statuses</option>
+                        <option value="available" {{ 'selected' if availability == 'available' else '' }}>Available Now</option>
+                        <option value="unavailable" {{ 'selected' if availability == 'unavailable' else '' }}>Checked Out</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <label for="sort" class="form-label small fw-bold text-muted">Sort By</label>
+                    <select class="form-select" id="sort" name="sort">
+                        <option value="title" {{ 'selected' if sort == 'title' else '' }}>Title (A-Z)</option>
+                        <option value="newest" {{ 'selected' if sort == 'newest' else '' }}>Recently Added</option>
+                        <option value="year" {{ 'selected' if sort == 'year' else '' }}>Publication Year</option>
+                        <option value="available" {{ 'selected' if sort == 'available' else '' }}>Most Copies</option>
+                    </select>
+                </div>
+                
+                <div class="col-lg-2 col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                    {% if search or genre or author or availability or sort != 'title' %}
+                        <a href="{{ url_for('catalog') }}" class="btn btn-light-custom" title="Reset Filters">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if search or genre or author or availability %}
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+        <span class="small text-muted fw-bold">Active Filters:</span>
+        {% if search %}
+            <span class="badge bg-secondary rounded-pill px-3 py-2">
+                Query: "{{ search }}"
+            </span>
+        {% endif %}
+        {% if genre %}
+            <span class="badge bg-primary rounded-pill px-3 py-2">
+                Genre: {{ genre }}
+            </span>
+        {% endif %}
+        {% if availability %}
+            <span class="badge bg-info text-dark rounded-pill px-3 py-2">
+                Availability: {{ availability|capitalize }}
+            </span>
+        {% endif %}
+        <a href="{{ url_for('catalog') }}" class="small text-danger ms-2 fw-semibold">Clear all</a>
+    </div>
+    {% endif %}
+
+    <!-- Books Grid -->
+    <div class="row g-4">
+        {% if books %}
+            {% for book in books %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="book-card-modern">
+                    <div class="book-cover-container">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image }}" alt="{{ book.title }}" class="book-cover-img" loading="lazy">
+                        {% else %}
+                            <div class="book-cover-fallback">
+                                <div>
+                                    <i class="fas fa-book-reader fs-3 opacity-50 mb-2"></i>
+                                    <h6 class="fw-bold">{{ book.title }}</h6>
+                                </div>
+                                <small class="opacity-75">{{ book.author_name }}</small>
+                            </div>
+                        {% endif %}
+                        <div class="book-cover-badge">
+                            {% if book.available_copies > 0 %}
+                                <span class="badge-status-available">Available ({{ book.available_copies }})</span>
+                            {% else %}
+                                <span class="badge-status-unavailable">Checked Out</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="book-info-body">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="book-genre-pill mb-0">{{ book.genre }}</span>
+                            <small class="text-muted">{{ book.publication_year or '' }}</small>
+                        </div>
+                        
+                        <h5 class="book-card-title mt-2" title="{{ book.title }}">
+                            <a href="{{ url_for('book_details', book_id=book.id) }}" class="text-reset text-decoration-none">
+                                {{ book.title }}
+                            </a>
+                        </h5>
+                        <p class="book-card-author mb-2">by {{ book.author_name }}</p>
+                        
+                        <p class="small text-muted mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ book.description or 'No summary recorded.' }}
+                        </p>
+                        
+                        <div class="book-card-footer">
+                            <span class="small text-muted font-monospace">
+                                ISBN: {{ book.isbn }}
+                            </span>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('toggle_wishlist', book_id=book.id) }}" class="btn btn-sm btn-light-custom p-1 px-2" title="Wishlist">
+                                    <i class="fas fa-heart text-danger"></i>
+                                </a>
+                                <a href="{{ url_for('book_details', book_id=book.id) }}" class="btn btn-sm btn-outline-primary py-1 px-3">
+                                    View <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 py-5 text-center">
+                <div class="card-modern p-5 mx-auto" style="max-width: 500px;">
+                    <div class="stat-icon bg-light text-muted mx-auto mb-3" style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h4 class="fw-bold">No Books Found</h4>
+                    <p class="text-muted mb-4">We couldn't find any books matching your specific filters or search keywords.</p>
+                    <a href="{{ url_for('catalog') }}" class="btn btn-primary">
+                        <i class="fas fa-redo me-1"></i> Reset All Filters
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if total_pages > 1 %}
+    <nav class="mt-5" aria-label="Catalog pages">
+        <ul class="pagination justify-content-center">
+            {% if has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('catalog', page=page-1, search=search, genre=genre, author=author, availability=availability, sort=sort) }}">
+                        <i class="fas fa-chevron-left me-1"></i> Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left me-1"></i> Previous</span></li>
+            {% endif %}
+            
+            {% for page_num in range(1, total_pages + 1) %}
+                {% if page_num == page %}
+                    <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                {% elif page_num <= 3 or page_num >= total_pages - 2 or (page_num >= page - 1 and page_num <= page + 1) %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('catalog', page=page_num, search=search, genre=genre, author=author, availability=availability, sort=sort) }}">{{ page_num }}</a>
+                    </li>
+                {% elif page_num == 4 and page > 6 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% elif page_num == total_pages - 3 and page < total_pages - 5 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('catalog', page=page+1, search=search, genre=genre, author=author, availability=availability, sort=sort) }}">
+                        Next <i class="fas fa-chevron-right ms-1"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Next <i class="fas fa-chevron-right ms-1"></i></span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

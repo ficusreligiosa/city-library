@@ -1,0 +1,7 @@
+Flask>=2.3.0
+Werkzeug>=2.3.0
+gunicorn>=21.2.0
+
+# Optional: if using MySQL instead of SQLite
+# Flask-MySQLdb>=2.0.0
+# mysqlclient>=2.2.0

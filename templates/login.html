@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - City Library{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card-modern p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <span class="brand-icon-badge mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.5rem;">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <h2 class="fw-bold">Welcome Back</h2>
+                    <p class="text-muted small">Sign in to manage your loans, holds, and reading history</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label small fw-bold text-muted">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required autofocus>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label small fw-bold text-muted">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted"><i class="fas fa-key"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-1"></i> Sign In to Account
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 1-Click Quick Demo Login Helper -->
+                <div class="p-3 my-3 rounded-3 border" style="background-color: var(--bg-subtle);">
+                    <div class="small fw-bold text-muted mb-2 text-center">
+                        <i class="fas fa-bolt text-warning me-1"></i> Quick 1-Click Demo Logins:
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillDemoCredentials('john@example.com', 'password123')">
+                            <i class="fas fa-user me-1"></i> Member: john@example.com
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillDemoCredentials('admin@library.com', 'admin123')">
+                            <i class="fas fa-shield-alt me-1"></i> Admin: admin@library.com
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3 pt-3 border-top">
+                    <p class="small text-muted mb-0">
+                        New to City Library? 
+                        <a href="{{ url_for('register') }}" class="fw-bold">Register free account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
