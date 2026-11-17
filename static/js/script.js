@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 3. Quick Table Filters (if present)
     initTableFilters();
+
+    // 4. Password Read / Visibility Toggle
+    initPasswordToggles();
 });
 
 // Theme Management
@@ -76,6 +79,53 @@ function initTableFilters() {
     });
 }
 
+// Password Read / Visibility Toggle
+function initPasswordToggles() {
+    document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const targetSelector = this.getAttribute('data-target');
+            const targetInput = document.querySelector(targetSelector);
+            if (!targetInput) return;
+
+            const icon = this.querySelector('i');
+            if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+                this.setAttribute('title', 'Hide password');
+            } else {
+                targetInput.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+                this.setAttribute('title', 'Show password');
+            }
+        });
+    });
+}
+
+// Tab Switcher for Metric Cards
+function switchAdminTab(tabId, filterKeyword = '') {
+    const tabButton = document.querySelector(`[data-bs-target="#${tabId}"]`);
+    if (tabButton && window.bootstrap) {
+        const tab = new bootstrap.Tab(tabButton);
+        tab.show();
+        
+        if (filterKeyword) {
+            const filterInput = document.querySelector(`#${tabId} [data-table-filter]`);
+            if (filterInput) {
+                filterInput.value = filterKeyword;
+                filterInput.dispatchEvent(new Event('keyup'));
+            }
+        }
+        
+        tabButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
 // Toast notification helper
 function showToast(message, type = 'info') {
     let container = document.getElementById('toastContainer');
@@ -137,16 +187,5 @@ function shareBook(title, author) {
         navigator.clipboard.writeText(window.location.href).then(() => {
             showToast('Book link copied to clipboard!', 'success');
         });
-    }
-}
-
-// Quick demo login helper
-function fillDemoCredentials(email, password) {
-    const emailField = document.getElementById('email');
-    const passwordField = document.getElementById('password');
-    if (emailField && passwordField) {
-        emailField.value = email;
-        passwordField.value = password;
-        showToast(`Filled credentials for ${email}`, 'info');
     }
 }

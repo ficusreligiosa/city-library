@@ -31,6 +31,7 @@ def inject_globals():
         cursor.close()
 
     return {
+        'now': datetime.now(),
         'user_logged_in': is_logged_in(),
         'is_admin_user': is_admin(),
         'current_year': datetime.now().year,
@@ -726,6 +727,46 @@ def toggle_wishlist(book_id):
     cursor.close()
     return redirect(request.referrer or url_for('book_details', book_id=book_id))
 
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    if not is_logged_in():
+        flash('Please login to update your password.', 'error')
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    current_password = request.form.get('current_password', '').strip()
+    new_password = request.form.get('new_password', '').strip()
+    confirm_password = request.form.get('confirm_password', '').strip()
+    
+    if not new_password:
+        flash('Please provide a new password.', 'error')
+        return redirect(url_for('user_dashboard'))
+        
+    if len(new_password) < 6:
+        flash('New password must be at least 6 characters long.', 'error')
+        return redirect(url_for('user_dashboard'))
+        
+    if new_password != confirm_password:
+        flash('New password and confirmation password do not match.', 'error')
+        return redirect(url_for('user_dashboard'))
+        
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT password FROM users WHERE id = %s', (user_id,))
+    user = cursor.fetchone()
+    
+    if not user or not check_password_hash(user['password'], current_password):
+        cursor.close()
+        flash('Current password is incorrect. If you were registered by an admin, please try the temporary password (e.g. password123).', 'error')
+        return redirect(url_for('user_dashboard'))
+        
+    new_hashed = generate_password_hash(new_password)
+    cursor.execute('UPDATE users SET password = %s WHERE id = %s', (new_hashed, user_id))
+    mysql.connection.commit()
+    cursor.close()
+    
+    flash('Your password has been changed successfully!', 'success')
+    return redirect(url_for('user_dashboard'))
+
 # ==========================================
 # ADMIN DASHBOARD & MANAGEMENT
 # ==========================================
@@ -757,14 +798,15 @@ def admin_dashboard():
     cursor.execute('SELECT COALESCE(SUM(amount), 0) as total FROM fines WHERE status = "unpaid"')
     unpaid_fines_total = cursor.fetchone()['total']
     
-    # Recent Loans
+    # Recent Loans (include book_id for direct linking and is_overdue flag)
     cursor.execute('''
-        SELECT l.*, b.title as book_title, u.name as user_name, u.email as user_email
+        SELECT l.*, b.id as book_id, b.title as book_title, u.name as user_name, u.email as user_email,
+               CASE WHEN l.returned_at IS NULL AND l.due_date < CURDATE() THEN 1 ELSE 0 END as is_overdue
         FROM loans l
         JOIN books b ON l.book_id = b.id
         JOIN users u ON l.user_id = u.id
         ORDER BY l.borrowed_at DESC
-        LIMIT 8
+        LIMIT 15
     ''')
     recent_loans = cursor.fetchall()
     
@@ -791,6 +833,30 @@ def admin_dashboard():
     ''')
     members = cursor.fetchall()
     
+    # All Active Holds for admin inspection
+    cursor.execute('''
+        SELECT h.*, b.title as book_title, b.isbn as book_isbn, b.available_copies,
+               u.name as user_name, u.email as user_email
+        FROM holds h
+        JOIN books b ON h.book_id = b.id
+        JOIN users u ON h.user_id = u.id
+        WHERE h.status = 'active'
+        ORDER BY h.created_at ASC
+    ''')
+    all_holds = cursor.fetchall()
+    
+    # All Unpaid Fines for admin inspection
+    cursor.execute('''
+        SELECT f.*, u.name as user_name, u.email as user_email, b.title as book_title
+        FROM fines f
+        JOIN users u ON f.user_id = u.id
+        LEFT JOIN loans l ON f.loan_id = l.id
+        LEFT JOIN books b ON l.book_id = b.id
+        WHERE f.status = 'unpaid'
+        ORDER BY f.created_at DESC
+    ''')
+    all_fines = cursor.fetchall()
+    
     # Announcements
     cursor.execute('SELECT * FROM announcements ORDER BY created_at DESC')
     announcements = cursor.fetchall()
@@ -812,6 +878,8 @@ def admin_dashboard():
                          all_books=all_books,
                          all_authors=all_authors,
                          members=members,
+                         all_holds=all_holds,
+                         all_fines=all_fines,
                          announcements=announcements,
                          events=events)
 

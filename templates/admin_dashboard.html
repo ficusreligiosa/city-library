@@ -29,60 +29,66 @@
         </div>
     </div>
 
-    <!-- Telemetry Metric Cards -->
+    <!-- Telemetry Metric Cards (Clickable - Takes Admin to Relevant Section) -->
     <div class="row g-3 mb-5">
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-modern p-3 text-center border-start border-4 border-primary">
+            <div class="card-modern p-3 text-center border-start border-4 border-primary stat-card-glass" 
+                 style="cursor: pointer;" onclick="switchAdminTab('tabBooks')" title="Click to view Catalog Inventory">
                 <small class="text-muted text-uppercase fw-bold">Total Books</small>
                 <h3 class="fw-bold mb-0 text-primary mt-1">{{ total_books }}</h3>
-                <small class="text-muted">Titles in system</small>
+                <small class="text-muted">Titles in system &rarr;</small>
             </div>
         </div>
         
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-modern p-3 text-center border-start border-4 border-success">
+            <div class="card-modern p-3 text-center border-start border-4 border-success stat-card-glass" 
+                 style="cursor: pointer;" onclick="switchAdminTab('tabMembers')" title="Click to view Members Directory">
                 <small class="text-muted text-uppercase fw-bold">Members</small>
                 <h3 class="fw-bold mb-0 text-success mt-1">{{ total_members }}</h3>
-                <small class="text-muted">Active patrons</small>
+                <small class="text-muted">Active patrons &rarr;</small>
             </div>
         </div>
 
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-modern p-3 text-center border-start border-4 border-info">
+            <div class="card-modern p-3 text-center border-start border-4 border-info stat-card-glass" 
+                 style="cursor: pointer;" onclick="switchAdminTab('tabRecentLoans')" title="Click to view Active Loans">
                 <small class="text-muted text-uppercase fw-bold">Active Loans</small>
                 <h3 class="fw-bold mb-0 text-info mt-1">{{ active_loans }}</h3>
-                <small class="text-muted">Currently out</small>
+                <small class="text-muted">Currently out &rarr;</small>
             </div>
         </div>
 
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-modern p-3 text-center border-start border-4 border-danger">
+            <div class="card-modern p-3 text-center border-start border-4 border-danger stat-card-glass" 
+                 style="cursor: pointer;" onclick="switchAdminTab('tabRecentLoans', 'Overdue')" title="Click to filter Overdue Loans">
                 <small class="text-muted text-uppercase fw-bold">Overdue</small>
                 <h3 class="fw-bold mb-0 text-danger mt-1">{{ overdue_loans }}</h3>
-                <small class="text-muted">Past deadline</small>
+                <small class="text-muted">Past deadline &rarr;</small>
             </div>
         </div>
 
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-modern p-3 text-center border-start border-4 border-warning">
+            <div class="card-modern p-3 text-center border-start border-4 border-warning stat-card-glass" 
+                 style="cursor: pointer;" onclick="switchAdminTab('tabHolds')" title="Click to view Queued Holds">
                 <small class="text-muted text-uppercase fw-bold">Queued Holds</small>
                 <h3 class="fw-bold mb-0 text-warning mt-1">{{ pending_holds }}</h3>
-                <small class="text-muted">Pending reservations</small>
+                <small class="text-muted">Reservations &rarr;</small>
             </div>
         </div>
 
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="card-modern p-3 text-center border-start border-4 border-secondary">
+            <div class="card-modern p-3 text-center border-start border-4 border-secondary stat-card-glass" 
+                 style="cursor: pointer;" onclick="switchAdminTab('tabFines')" title="Click to view Unpaid Fines">
                 <small class="text-muted text-uppercase fw-bold">Unpaid Fines</small>
                 <h3 class="fw-bold mb-0 text-secondary mt-1">${{ "%.2f"|format(unpaid_fines_total) }}</h3>
-                <small class="text-muted">Outstanding fees</small>
+                <small class="text-muted">Outstanding fees &rarr;</small>
             </div>
         </div>
     </div>
 
     <!-- Admin Operations Tabs -->
     <div class="card-modern p-4">
-        <ul class="nav nav-pills tab-nav-modern mb-4 gap-2" id="adminTabs" role="tablist">
+        <ul class="nav nav-pills tab-nav-modern mb-4 gap-2 flex-wrap" id="adminTabs" role="tablist">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabRecentLoans">
                     <i class="fas fa-list-alt me-1"></i> Recent Circulation
@@ -99,6 +105,16 @@
                 </button>
             </li>
             <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabHolds">
+                    <i class="fas fa-bookmark me-1"></i> Queued Holds ({{ all_holds|length }})
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabFines">
+                    <i class="fas fa-receipt me-1"></i> Unpaid Fines ({{ all_fines|length }})
+                </button>
+            </li>
+            <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabNews">
                     <i class="fas fa-bullhorn me-1"></i> Announcements & Events
                 </button>
@@ -108,8 +124,11 @@
         <div class="tab-content" id="adminTabContent">
             <!-- TAB 1: RECENT CIRCULATION -->
             <div class="tab-pane fade show active" id="tabRecentLoans">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0">Circulation Records</h5>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="fw-bold mb-0">Circulation Records</h5>
+                        <input type="text" class="form-control form-control-sm" style="max-width: 260px;" placeholder="Filter circulation..." data-table-filter="#circulationTable">
+                    </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
                             <i class="fas fa-user-plus me-1"></i> New Member
@@ -122,12 +141,12 @@
 
                 {% if recent_loans %}
                     <div class="table-responsive">
-                        <table class="table-custom">
+                        <table class="table-custom" id="circulationTable">
                             <thead>
                                 <tr>
                                     <th>Loan ID</th>
-                                    <th>Book Title</th>
-                                    <th>Member</th>
+                                    <th>Book Title (Clickable)</th>
+                                    <th>Member Patron</th>
                                     <th>Borrow Date</th>
                                     <th>Due Date</th>
                                     <th>Status</th>
@@ -138,9 +157,16 @@
                                 {% for loan in recent_loans %}
                                 <tr>
                                     <td><span class="font-monospace fw-bold">#{{ loan.id }}</span></td>
-                                    <td><strong>{{ loan.book_title }}</strong></td>
                                     <td>
-                                        <strong>{{ loan.user_name }}</strong><br>
+                                        <a href="{{ url_for('book_details', book_id=loan.book_id) }}" class="text-reset text-decoration-none fw-bold" target="_blank" title="View details of {{ loan.book_title }}">
+                                            {{ loan.book_title }}
+                                            <i class="fas fa-external-link-alt small text-muted ms-1" style="font-size: 0.75rem;"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0)" onclick="switchAdminTab('tabMembers', '{{ loan.user_email }}')" class="text-reset text-decoration-none fw-bold" title="Find in Members Directory">
+                                            {{ loan.user_name }}
+                                        </a><br>
                                         <small class="text-muted">{{ loan.user_email }}</small>
                                     </td>
                                     <td>{{ loan.borrowed_at|format_date('%b %d, %Y') }}</td>
@@ -148,6 +174,8 @@
                                     <td>
                                         {% if loan.returned_at %}
                                             <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1">Returned</span>
+                                        {% elif loan.is_overdue %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-1">Overdue</span>
                                         {% else %}
                                             <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">Active</span>
                                         {% endif %}
@@ -171,7 +199,7 @@
                 {% endif %}
             </div>
 
-            <!-- TAB 2: MEMBERS DIRECTORY (ADMIN USER REGISTRATION & ISSUE ACTIONS) -->
+            <!-- TAB 2: MEMBERS DIRECTORY -->
             <div class="tab-pane fade" id="tabMembers">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <input type="text" class="form-control" style="max-width: 320px;" placeholder="Filter members by name, email, card ID..." data-table-filter="#membersTable">
@@ -218,7 +246,6 @@
                                 <td><small class="text-muted">{{ m.created_at|format_date('%b %d, %Y') }}</small></td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-1">
-                                        <!-- Instant Issue Book Button for this specific Member -->
                                         <button type="button" class="btn btn-sm btn-primary py-1 px-2" 
                                                 onclick="openIssueModalForUser('{{ m.email }}', '{{ m.name|replace('\'', '') }}')" 
                                                 title="Issue Book to {{ m.name }}">
@@ -253,7 +280,7 @@
                         <thead>
                             <tr>
                                 <th>Cover</th>
-                                <th>Title & Author</th>
+                                <th>Title (Clickable) & Author</th>
                                 <th>Genre</th>
                                 <th>ISBN</th>
                                 <th>Copies Available</th>
@@ -264,16 +291,21 @@
                             {% for b in all_books %}
                             <tr>
                                 <td style="width: 50px;">
-                                    <div class="rounded overflow-hidden bg-light" style="width: 38px; height: 50px;">
-                                        {% if b.cover_image %}
-                                            <img src="{{ b.cover_image }}" alt="{{ b.title }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                        {% else %}
-                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-book small"></i></div>
-                                        {% endif %}
-                                    </div>
+                                    <a href="{{ url_for('book_details', book_id=b.id) }}" target="_blank" title="View details">
+                                        <div class="rounded overflow-hidden bg-light" style="width: 38px; height: 50px;">
+                                            {% if b.cover_image %}
+                                                <img src="{{ b.cover_image }}" alt="{{ b.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            {% else %}
+                                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-book small"></i></div>
+                                            {% endif %}
+                                        </div>
+                                    </a>
                                 </td>
                                 <td>
-                                    <strong>{{ b.title }}</strong><br>
+                                    <a href="{{ url_for('book_details', book_id=b.id) }}" class="text-reset text-decoration-none fw-bold" target="_blank" title="View details">
+                                        {{ b.title }}
+                                        <i class="fas fa-external-link-alt small text-muted ms-1" style="font-size: 0.75rem;"></i>
+                                    </a><br>
                                     <small class="text-muted">{{ b.author_name }} ({{ b.publication_year or '' }})</small>
                                 </td>
                                 <td><span class="badge bg-light text-muted border">{{ b.genre }}</span></td>
@@ -302,7 +334,107 @@
                 </div>
             </div>
 
-            <!-- TAB 4: ANNOUNCEMENTS & EVENTS -->
+            <!-- TAB 4: QUEUED HOLDS -->
+            <div class="tab-pane fade" id="tabHolds">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <h5 class="fw-bold mb-0">Active Reservation Holds Queue</h5>
+                    <input type="text" class="form-control form-control-sm" style="max-width: 260px;" placeholder="Filter holds..." data-table-filter="#holdsTable">
+                </div>
+
+                {% if all_holds %}
+                    <div class="table-responsive">
+                        <table class="table-custom" id="holdsTable">
+                            <thead>
+                                <tr>
+                                    <th>Hold ID</th>
+                                    <th>Book Title (Clickable)</th>
+                                    <th>Patron Member</th>
+                                    <th>Date Placed</th>
+                                    <th>Inventory Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for h in all_holds %}
+                                <tr>
+                                    <td><span class="font-monospace fw-bold">#{{ h.id }}</span></td>
+                                    <td>
+                                        <a href="{{ url_for('book_details', book_id=h.book_id) }}" class="text-reset text-decoration-none fw-bold" target="_blank">
+                                            {{ h.book_title }}
+                                            <i class="fas fa-external-link-alt small text-muted ms-1" style="font-size: 0.75rem;"></i>
+                                        </a><br>
+                                        <small class="text-muted">ISBN: {{ h.book_isbn }}</small>
+                                    </td>
+                                    <td>
+                                        <strong>{{ h.user_name }}</strong><br>
+                                        <small class="text-muted">{{ h.user_email }}</small>
+                                    </td>
+                                    <td>{{ h.created_at|format_date('%b %d, %Y') }}</td>
+                                    <td>
+                                        {% if h.available_copies > 0 %}
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1">Copy Available Now</span>
+                                        {% else %}
+                                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-1">In Queue</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-primary py-1" onclick="openIssueModalForUser('{{ h.user_email }}', '{{ h.user_name }}', '{{ h.book_isbn }}')">
+                                            <i class="fas fa-hand-holding me-1"></i> Issue Copy
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4">No active holds queued at this moment.</p>
+                {% endif %}
+            </div>
+
+            <!-- TAB 5: UNPAID FINES -->
+            <div class="tab-pane fade" id="tabFines">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <h5 class="fw-bold mb-0">Unpaid Fines & Overdue Fees</h5>
+                    <input type="text" class="form-control form-control-sm" style="max-width: 260px;" placeholder="Filter fines..." data-table-filter="#finesTable">
+                </div>
+
+                {% if all_fines %}
+                    <div class="table-responsive">
+                        <table class="table-custom" id="finesTable">
+                            <thead>
+                                <tr>
+                                    <th>Fine ID</th>
+                                    <th>Patron Member</th>
+                                    <th>Reason / Description</th>
+                                    <th>Associated Title</th>
+                                    <th>Amount</th>
+                                    <th>Assessed Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for f in all_fines %}
+                                <tr>
+                                    <td><span class="font-monospace fw-bold">#{{ f.id }}</span></td>
+                                    <td>
+                                        <strong>{{ f.user_name }}</strong><br>
+                                        <small class="text-muted">{{ f.user_email }}</small>
+                                    </td>
+                                    <td>{{ f.reason }}</td>
+                                    <td>{{ f.book_title or 'General penalty' }}</td>
+                                    <td><strong class="text-danger fs-6">${{ "%.2f"|format(f.amount) }}</strong></td>
+                                    <td>{{ f.created_at|format_date('%b %d, %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4">No unpaid fines currently recorded. All accounts in good standing!</p>
+                {% endif %}
+            </div>
+
+            <!-- TAB 6: ANNOUNCEMENTS & EVENTS -->
             <div class="tab-pane fade" id="tabNews">
                 <div class="row g-4">
                     <!-- Announcements Column -->
@@ -390,7 +522,12 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Initial Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="Leave empty for: password123">
+                            <div class="input-group">
+                                <input type="password" name="password" id="adminNewMemberPassword" class="form-control border-end-0" placeholder="Defaults to password123 if blank">
+                                <button class="btn btn-light-custom border border-start-0 toggle-password-btn" type="button" data-target="#adminNewMemberPassword" title="Show/Hide password">
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            </div>
                             <small class="text-muted">Defaults to <code>password123</code> if left blank</small>
                         </div>
                         <div class="col-md-8">
@@ -626,14 +763,23 @@
 
 {% block scripts %}
 <script>
-function openIssueModalForUser(email, name) {
+function openIssueModalForUser(email, name, isbn = '') {
     const userSelect = document.getElementById('issueUserSelect');
     const emailInput = document.getElementById('issueUserEmailInput');
+    const bookSelect = document.getElementById('issueBookSelect');
+    const isbnInput = document.getElementById('issueBookIsbnInput');
+    
     if (emailInput) {
         emailInput.value = email;
     }
     if (userSelect) {
         userSelect.value = email;
+    }
+    if (isbn && isbnInput) {
+        isbnInput.value = isbn;
+        if (bookSelect) {
+            bookSelect.value = isbn;
+        }
     }
     const modalEl = document.getElementById('issueLoanModal');
     if (modalEl && window.bootstrap) {

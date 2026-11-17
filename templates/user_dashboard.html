@@ -48,45 +48,45 @@
         </div>
     </div>
 
-    <!-- Quick Stats Metric Cards -->
+    <!-- Quick Stats Metric Cards (Clickable) -->
     <div class="row g-3 mb-5">
         <div class="col-md-3 col-6">
-            <div class="card-modern p-3 text-center">
+            <div class="card-modern p-3 text-center stat-card-glass" style="cursor: pointer;" onclick="document.getElementById('loans-tab').click();" title="View Current Loans">
                 <div class="stat-icon bg-primary bg-opacity-10 text-primary mx-auto mb-2">
                     <i class="fas fa-book-reader"></i>
                 </div>
-                <h3 class="fw-bold mb-0">{{ current_loans|length }}</h3>
-                <small class="text-muted">Active Loans</small>
+                <h3 class="fw-bold mb-0 text-primary">{{ current_loans|length }}</h3>
+                <small class="text-muted fw-bold">Current Loans &rarr;</small>
             </div>
         </div>
         
         <div class="col-md-3 col-6">
-            <div class="card-modern p-3 text-center">
+            <div class="card-modern p-3 text-center stat-card-glass" style="cursor: pointer;" onclick="document.getElementById('holds-tab').click();" title="View Active Holds">
                 <div class="stat-icon bg-warning bg-opacity-10 text-warning mx-auto mb-2">
                     <i class="fas fa-bookmark"></i>
                 </div>
-                <h3 class="fw-bold mb-0">{{ holds|length }}</h3>
-                <small class="text-muted">Active Holds</small>
+                <h3 class="fw-bold mb-0 text-warning">{{ holds|length }}</h3>
+                <small class="text-muted fw-bold">Active Holds &rarr;</small>
             </div>
         </div>
 
         <div class="col-md-3 col-6">
-            <div class="card-modern p-3 text-center">
+            <div class="card-modern p-3 text-center stat-card-glass" style="cursor: pointer;" onclick="document.getElementById('fines-tab').click();" title="View Outstanding Fines">
                 <div class="stat-icon bg-danger bg-opacity-10 text-danger mx-auto mb-2">
                     <i class="fas fa-receipt"></i>
                 </div>
-                <h3 class="fw-bold mb-0">${{ "%.2f"|format(fines|sum(attribute='amount') or 0.0) }}</h3>
-                <small class="text-muted">Pending Fines</small>
+                <h3 class="fw-bold mb-0 text-danger">${{ "%.2f"|format(fines|sum(attribute='amount') or 0.0) }}</h3>
+                <small class="text-muted fw-bold">Pending Fines &rarr;</small>
             </div>
         </div>
 
         <div class="col-md-3 col-6">
-            <div class="card-modern p-3 text-center">
+            <div class="card-modern p-3 text-center stat-card-glass" style="cursor: pointer;" onclick="document.getElementById('history-tab').click();" title="View Books Returned">
                 <div class="stat-icon bg-info bg-opacity-10 text-info mx-auto mb-2">
                     <i class="fas fa-check-double"></i>
                 </div>
-                <h3 class="fw-bold mb-0">{{ reading_history|length }}</h3>
-                <small class="text-muted">Books Returned</small>
+                <h3 class="fw-bold mb-0 text-info">{{ reading_history|length }}</h3>
+                <small class="text-muted fw-bold">Books Returned &rarr;</small>
             </div>
         </div>
     </div>
@@ -119,6 +119,11 @@
                     <i class="fas fa-history me-1"></i> Reading History
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#securityTab" type="button" role="tab">
+                    <i class="fas fa-key me-1"></i> Security & Password
+                </button>
+            </li>
         </ul>
 
         <div class="tab-content" id="dashboardTabContent">
@@ -141,15 +146,19 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded overflow-hidden bg-light" style="width: 44px; height: 60px; flex-shrink: 0;">
+                                            <a href="{{ url_for('book_details', book_id=loan.book_id) }}" class="rounded overflow-hidden bg-light" style="width: 44px; height: 60px; flex-shrink: 0;" title="View book details">
                                                 {% if loan.cover_image %}
                                                     <img src="{{ loan.cover_image }}" alt="{{ loan.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 {% else %}
                                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-book"></i></div>
                                                 {% endif %}
-                                            </div>
+                                            </a>
                                             <div>
-                                                <h6 class="fw-bold mb-0">{{ loan.title }}</h6>
+                                                <h6 class="fw-bold mb-0">
+                                                    <a href="{{ url_for('book_details', book_id=loan.book_id) }}" class="text-reset text-decoration-none" title="View details of {{ loan.title }}">
+                                                        {{ loan.title }}
+                                                    </a>
+                                                </h6>
                                                 <small class="text-muted">by {{ loan.author_name }} &bull; ISBN: {{ loan.isbn }}</small>
                                             </div>
                                         </div>
@@ -212,15 +221,19 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded overflow-hidden bg-light" style="width: 44px; height: 60px; flex-shrink: 0;">
+                                            <a href="{{ url_for('book_details', book_id=hold.book_id) }}" class="rounded overflow-hidden bg-light" style="width: 44px; height: 60px; flex-shrink: 0;" title="View book details">
                                                 {% if hold.cover_image %}
                                                     <img src="{{ hold.cover_image }}" alt="{{ hold.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 {% else %}
                                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-book"></i></div>
                                                 {% endif %}
-                                            </div>
+                                            </a>
                                             <div>
-                                                <h6 class="fw-bold mb-0">{{ hold.title }}</h6>
+                                                <h6 class="fw-bold mb-0">
+                                                    <a href="{{ url_for('book_details', book_id=hold.book_id) }}" class="text-reset text-decoration-none">
+                                                        {{ hold.title }}
+                                                    </a>
+                                                </h6>
                                                 <small class="text-muted">by {{ hold.author_name }}</small>
                                             </div>
                                         </div>
@@ -324,15 +337,19 @@
                         <div class="col-md-6 col-lg-4">
                             <div class="card-modern p-3 h-100 d-flex flex-column">
                                 <div class="d-flex gap-3 mb-3">
-                                    <div class="rounded overflow-hidden bg-light" style="width: 60px; height: 85px; flex-shrink: 0;">
+                                    <a href="{{ url_for('book_details', book_id=item.id) }}" class="rounded overflow-hidden bg-light" style="width: 60px; height: 85px; flex-shrink: 0;">
                                         {% if item.cover_image %}
                                             <img src="{{ item.cover_image }}" alt="{{ item.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                                         {% else %}
                                             <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-book"></i></div>
                                         {% endif %}
-                                    </div>
+                                    </a>
                                     <div>
-                                        <h6 class="fw-bold mb-1">{{ item.title }}</h6>
+                                        <h6 class="fw-bold mb-1">
+                                            <a href="{{ url_for('book_details', book_id=item.id) }}" class="text-reset text-decoration-none">
+                                                {{ item.title }}
+                                            </a>
+                                        </h6>
                                         <p class="text-muted small mb-1">by {{ item.author_name }}</p>
                                         <span class="badge bg-light text-muted border small">{{ item.genre }}</span>
                                     </div>
@@ -377,15 +394,19 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="rounded overflow-hidden bg-light" style="width: 44px; height: 60px; flex-shrink: 0;">
+                                            <a href="{{ url_for('book_details', book_id=item.book_id) }}" class="rounded overflow-hidden bg-light" style="width: 44px; height: 60px; flex-shrink: 0;">
                                                 {% if item.cover_image %}
                                                     <img src="{{ item.cover_image }}" alt="{{ item.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 {% else %}
                                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-book"></i></div>
                                                 {% endif %}
-                                            </div>
+                                            </a>
                                             <div>
-                                                <h6 class="fw-bold mb-0">{{ item.title }}</h6>
+                                                <h6 class="fw-bold mb-0">
+                                                    <a href="{{ url_for('book_details', book_id=item.book_id) }}" class="text-reset text-decoration-none">
+                                                        {{ item.title }}
+                                                    </a>
+                                                </h6>
                                                 <small class="text-muted">by {{ item.author_name }}</small>
                                             </div>
                                         </div>
@@ -411,6 +432,67 @@
                         <p class="text-muted">Once you return borrowed books, they will appear in your lifetime reading history.</p>
                     </div>
                 {% endif %}
+            </div>
+
+            <!-- TAB 6: SECURITY & PASSWORD (FOR ADMIN-REGISTERED & GENERAL MEMBERS) -->
+            <div class="tab-pane fade" id="securityTab" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="p-3 mb-4 rounded-3 border" style="background-color: var(--bg-subtle);">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="fas fa-user-shield fs-3 text-primary mt-1"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Set or Update Your Password</h6>
+                                    <p class="small text-muted mb-0">
+                                        If an administrator or librarian registered your account with a temporary default password (e.g., <code>password123</code>), you can update it to your own confidential password below.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form action="{{ url_for('change_password') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label small fw-bold text-muted">Current / Temporary Password *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent text-muted"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control border-end-0" id="current_password" name="current_password" placeholder="Enter your current or temporary password" required>
+                                    <button class="btn btn-light-custom border border-start-0 toggle-password-btn" type="button" data-target="#current_password" title="Show/Hide password">
+                                        <i class="fas fa-eye text-muted"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="new_password" class="form-label small fw-bold text-muted">New Password *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent text-muted"><i class="fas fa-key"></i></span>
+                                        <input type="password" class="form-control border-end-0" id="new_password" name="new_password" placeholder="At least 6 characters" minlength="6" required>
+                                        <button class="btn btn-light-custom border border-start-0 toggle-password-btn" type="button" data-target="#new_password" title="Show/Hide password">
+                                            <i class="fas fa-eye text-muted"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="confirm_password" class="form-label small fw-bold text-muted">Confirm New Password *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent text-muted"><i class="fas fa-check"></i></span>
+                                        <input type="password" class="form-control border-end-0" id="confirm_password" name="confirm_password" placeholder="Re-type new password" minlength="6" required>
+                                        <button class="btn btn-light-custom border border-start-0 toggle-password-btn" type="button" data-target="#confirm_password" title="Show/Hide password">
+                                            <i class="fas fa-eye text-muted"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-1"></i> Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
